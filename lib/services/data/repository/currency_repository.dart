@@ -14,13 +14,20 @@ class CurrencyRepositoryImpl extends CurrencyRepository {
     try {
       final response = await dio.get(ConstKeys.bankUrl);
       if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.data);
+        List<dynamic> data = [];
+        if (response.data is List) {
+          data = response.data;
+        } else if (response.data is String) {
+          data = json.decode(response.data);
+        }
+
         Map<String, double> rates = {};
         for (var item in data) {
           if (item['Ccy'] == 'USD' || item['Ccy'] == 'EUR' || item['Ccy'] == 'RUB') {
             rates[item['Ccy']] = double.parse(item['Rate'].toString().replaceAll(',', '.'));
           }
         }
+
         return rates;
       } else {
         return null;
