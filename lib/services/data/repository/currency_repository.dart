@@ -14,7 +14,7 @@ class CurrencyRepositoryImpl extends CurrencyRepository {
     try {
       final response = await dio.get(ConstKeys.bankUrl);
       if (response.statusCode == 200) {
-        List data = json.decode(response.data);
+        List<dynamic> data = json.decode(response.data);
         Map<String, double> rates = {};
         for (var item in data) {
           if (item['Ccy'] == 'USD' || item['Ccy'] == 'EUR' || item['Ccy'] == 'RUB') {

@@ -77,6 +77,7 @@ class WeatherModel {
 🌬 **Shamol tezligi:** $windSpeed m/s  
 🌈 **Ob-havo:** $weatherDescription  
 🕒 **Soat:** $formattedTime  
+
 $currencyInfo
 
       ''';
