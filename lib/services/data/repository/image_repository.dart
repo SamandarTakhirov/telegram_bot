@@ -7,21 +7,30 @@ abstract class ImageRepository {
 
 class ImageRepositoryImpl extends ImageRepository {
   final dio = Dio();
+
   @override
   Future<String?> getImageByUrl({required String cityName}) async {
-    final response = await dio.get(
-      ConstKeys.urlImage,
-      queryParameters: {
-        'query': cityName,
-        'per_page': 1,
-      },
-      options: Options(
-        headers: {'Authorization': ConstKeys.pexelsApiKey},
-      ),
-    );
-    if (response.data['photos'].isNotEmpty) {
-      return response.data['photos'][0]['src']['original'];
+    try {
+      final response = await dio.get(
+        ConstKeys.urlImage,
+        queryParameters: {
+          'query': '$cityName city',        
+          'per_page': 1,            
+          'orientation': 'portrait',
+        },
+        options: Options(
+          headers: {'Authorization': 'Client-ID ${ConstKeys.imageApiKey}'},
+        ),
+      );
+
+      if (response.data['results'] != null && response.data['results'].isNotEmpty) {
+        return response.data['results'][0]['urls']['regular']; 
+      }
+
+      return null;
+    } catch (e) {
+      print('Error fetching image: $e');
+      return null; 
     }
-    return null;
   }
 }
