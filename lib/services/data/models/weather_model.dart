@@ -8,6 +8,7 @@ class WeatherModel {
   final double windSpeed;
   final int timezoneOffset;
   final String cityNameResponse;
+  final Map<String, double>? currencyRates;
 
   const WeatherModel({
     required this.weatherDescription,
@@ -17,6 +18,7 @@ class WeatherModel {
     required this.windSpeed,
     required this.timezoneOffset,
     required this.cityNameResponse,
+    this.currencyRates,
   });
 
   factory WeatherModel.fromJson(Map<String, Object?> json, {String? cityName}) {
@@ -49,6 +51,7 @@ class WeatherModel {
       windSpeed: wind,
       timezoneOffset: json['timezone'] as int? ?? 0,
       cityNameResponse: cityName ?? (json['name'] as String? ?? ''),
+      currencyRates: null,
     );
   }
 
@@ -56,6 +59,16 @@ class WeatherModel {
   String toString() {
     DateTime currentTime = DateTime.now().toUtc().add(Duration(seconds: timezoneOffset));
     String formattedTime = DateFormat('HH:mm:ss').format(currentTime);
+
+    String currencyInfo = '';
+    if (currencyRates != null) {
+      currencyInfo = '''
+💵 **USD:** ${currencyRates?['USD']} UZS
+💶 **EUR:** ${currencyRates?['EUR']} UZS
+💴 **RUB:** ${currencyRates?['RUB']} UZS
+      ''';
+    }
+
     return '''
 🌤 **Shahar:** $cityNameResponse  
 🌡 **Harorat:** $temperature°C  
@@ -64,6 +77,8 @@ class WeatherModel {
 🌬 **Shamol tezligi:** $windSpeed m/s  
 🌈 **Ob-havo:** $weatherDescription  
 🕒 **Soat:** $formattedTime  
+$currencyInfo
+
       ''';
   }
 }

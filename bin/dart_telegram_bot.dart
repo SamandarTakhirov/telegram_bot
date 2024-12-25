@@ -1,16 +1,17 @@
 import 'package:dart_telegram_bot/constants/const_keys.dart';
 import 'package:dart_telegram_bot/services/data/models/weather_model.dart';
+import 'package:dart_telegram_bot/services/data/repository/currency_repository.dart';
 import 'package:dart_telegram_bot/services/data/repository/image_repository.dart';
 import 'package:dart_telegram_bot/services/data/repository/weather_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:televerse/televerse.dart';
-import 'package:cron/cron.dart';
 
 void main() async {
   final bot = Bot(ConstKeys.botToken);
   final String onLocation = '📍 Location orqali';
   final String onCityName = '🌎 Shahar nomi orqali';
   final String onAutoWeather = '⏰ Avtomatik ob-havo sozlash';
+
   bot.command('start', (ctx) async {
     final user = ctx.message?.from;
     final firstName = user?.firstName ?? 'Foydalanuvchi';
@@ -41,8 +42,10 @@ void main() async {
     try {
       final weatherRepository = WeatherRepositoryImpl();
       final imageRepository = ImageRepositoryImpl();
-      final WeatherModel? weatherModel;
-      final String? imageUrl;
+      final currencyRepository = CurrencyRepositoryImpl();
+      
+      WeatherModel? weatherModel;
+      String? imageUrl;
 
       if (cityName != null) {
         weatherModel = await weatherRepository.getWeatherByName(cityName: cityName);
@@ -53,6 +56,21 @@ void main() async {
           longitude: longitude!,
         );
         imageUrl = await imageRepository.getImageByUrl(cityName: weatherModel.cityNameResponse);
+      }
+
+      final currencyRates = await currencyRepository.getCurrencyRates();
+
+      if (currencyRates != null) {
+        weatherModel = WeatherModel(
+          weatherDescription: weatherModel.weatherDescription,
+          temperature: weatherModel.temperature,
+          feelsLike: weatherModel.feelsLike,
+          humidity: weatherModel.humidity,
+          windSpeed: weatherModel.windSpeed,
+          timezoneOffset: weatherModel.timezoneOffset,
+          cityNameResponse: weatherModel.cityNameResponse,
+          currencyRates: currencyRates,
+        );
       }
 
       if (imageUrl != null) {
@@ -91,40 +109,7 @@ void main() async {
     await fetchWeatherData(ctx, latitude: location.latitude, longitude: location.longitude);
   });
 
-  // final cron = Cron();
-
-  // bot.onLocation((ctx) async {
-  //   print('Auto ${ctx.message?.text}');
-  //   final location = ctx.message?.location;
-
-  //   if (location == null) {
-  //     await ctx.reply('⚠️ Iltimos, joylashuvni yuboring.');
-  //     return;
-  //   }
-
-  //   cron.schedule(Schedule.parse('0 7 * * *'), () async {
-  //     final weatherRepository = WeatherRepositoryImpl();
-  //     final weatherModel = await weatherRepository.getWeatherByLocation(
-  //       latitude: location.latitude,
-  //       longitude: location.longitude,
-  //     );
-
-  //     await ctx.reply(
-  //       '🌤 Bugungi ob-havo:\n\n'
-  //       'Harorat: ${weatherModel.temperature}°C\n'
-  //       'His etish: ${weatherModel.feelsLike}°C\n'
-  //       'Namlik: ${weatherModel.humidity}%\n'
-  //       'Shamol tezligi: ${weatherModel.windSpeed} m/s\n\n'
-  //       'Avtomatik ob-havo ma’lumotlari yuborildi.',
-  //     );
-  //   });
-
-  //   await ctx.reply('✅ Avtomatik ob-havo sozlandi. Har kuni ertalab soat 7:00 da ma’lumot olasiz.');
-  // });
-
-
   bot.onMessage((ctx) async {
-   
     print('OnMessage ${ctx.message?.text}');
     String? cityName = ctx.message?.text?.trim();
 
