@@ -1,4 +1,5 @@
 class ConstKeys {
+  // static const botToken = '7571666941:AAHzNLw4rOo2KDK91yqlTJNjc41nKPiOu4U';
   static const botToken = '8123558993:AAEfY-yFDZua5uHvyoWNCLV7TXJ2YCFFXfw';
   static const bankUrl = 'https://cbu.uz/uz/arkhiv-kursov-valyut/json/';
   static const urlWeather = 'https://api.openweathermap.org/data/2.5/weather';
