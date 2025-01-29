@@ -1,6 +1,6 @@
-import 'package:dart_telegram_bot/constants/const_keys.dart';
 import 'package:dart_telegram_bot/services/data/models/weather_model.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 abstract class WeatherRepository {
   Future<WeatherModel> getWeatherByName({
@@ -13,16 +13,18 @@ abstract class WeatherRepository {
 }
 
 class WeatherRepositoryImpl extends WeatherRepository {
+  
   final dio = Dio();
   @override
   Future<WeatherModel> getWeatherByLocation({
     required double latitude,
     required double longitude,
   }) async {
-    final response = await dio.get(ConstKeys.urlWeather, queryParameters: {
+    await dotenv.load(fileName: '.env');
+    final response = await dio.get(dotenv.env['URLWEATHER']!, queryParameters: {
       'lat': latitude,
       'lon': longitude,
-      'appid': ConstKeys.apiWeather,
+      'appid': dotenv.env['APIWEATHER'],
       'units': 'metric',
       'lang': 'uz',
     });
@@ -31,9 +33,9 @@ class WeatherRepositoryImpl extends WeatherRepository {
 
   @override
   Future<WeatherModel> getWeatherByName({required String cityName}) async {
-    final response = await dio.get(ConstKeys.urlWeather, queryParameters: {
+    final response = await dio.get(dotenv.env['URLWEATHER']!, queryParameters: {
       'q': cityName,
-      'appid': ConstKeys.apiWeather,
+      'appid':  dotenv.env['APIWEATHER'],
       'units': 'metric',
       'lang': 'uz',
     });

@@ -1,6 +1,7 @@
-import 'package:dart_telegram_bot/constants/const_keys.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 abstract class CurrencyRepository {
   Future<Map<String, double>?> getCurrencyRates();
@@ -11,8 +12,9 @@ class CurrencyRepositoryImpl extends CurrencyRepository {
 
   @override
   Future<Map<String, double>?> getCurrencyRates() async {
+    await dotenv.load(fileName: '.env');
     try {
-      final response = await dio.get(ConstKeys.bankUrl);
+      final response = await dio.get(dotenv.env['BANKURL']!);
       if (response.statusCode == 200) {
         List<dynamic> data = [];
         if (response.data is List) {

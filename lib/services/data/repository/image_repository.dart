@@ -1,5 +1,5 @@
-import 'package:dart_telegram_bot/constants/const_keys.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 abstract class ImageRepository {
   Future<String?> getImageByUrl({required String cityName});
@@ -10,16 +10,17 @@ class ImageRepositoryImpl extends ImageRepository {
 
   @override
   Future<String?> getImageByUrl({required String cityName}) async {
+    await dotenv.load(fileName: '.env');
     try {
       final response = await dio.get(
-        ConstKeys.urlImage,
+        dotenv.env['URLIMAGE']!,
         queryParameters: {
           'query': '$cityName city',        
           'per_page': 1,            
           'orientation': 'portrait',
         },
         options: Options(
-          headers: {'Authorization': 'Client-ID ${ConstKeys.imageApiKey}'},
+          headers: {'Authorization': 'Client-ID ${dotenv.env['IMAGEAPIKEY']}'},
         ),
       );
 

@@ -1,16 +1,22 @@
 import 'package:cron/cron.dart';
-import 'package:dart_telegram_bot/constants/const_keys.dart';
 import 'package:dart_telegram_bot/services/data/models/weather_model.dart';
 import 'package:dart_telegram_bot/services/data/repository/currency_repository.dart';
 import 'package:dart_telegram_bot/services/data/repository/image_repository.dart';
 import 'package:dart_telegram_bot/services/data/repository/weather_repository.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:televerse/televerse.dart';
 
 part './widgets/get_weather_function.dart';
 
 void main() async {
-  final bot = Bot(ConstKeys.botToken);
+  await dotenv.load(fileName: '.env');
+  @override
+  void initState() {
+    print(dotenv.env);
+  }
+
+  final bot = Bot(dotenv.env['BOTTOKEN']!);
   final cron = Cron();
 
   const String onLocation = '📍 Location orqali';
@@ -20,7 +26,7 @@ void main() async {
   const String onAutoCityNameWeather = '📝 Shahar nomi orqali avto ob-havo';
   const String onMainMenu = '🔙 Bosh menu';
 
-  int chatId = 0; // Global chatId saqlash
+  int chatId = 0; 
 
   Future<void> showMainMenu(Context ctx) async {
     final user = ctx.message?.from;
@@ -138,7 +144,7 @@ void main() async {
         } else {
           await bot.api.sendMessage(
             ChatID(chatId),
-           '⏰ Avto ob-havo ma\'lumotlari:\n\n${weatherModel.toString()}',
+            '⏰ Avto ob-havo ma\'lumotlari:\n\n${weatherModel.toString()}',
             parseMode: ParseMode.markdown,
           );
         }
@@ -150,7 +156,6 @@ void main() async {
         );
       }
     } else {
-      
       print('Chat ID mavjud emas!');
     }
   });
